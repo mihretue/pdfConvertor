@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Converter</title>
+</head>
+<body>
+  <h1>Convert</h1>
+
+  <input type="file" id="file-input" />
+  <button id="upload-btn">Convert</button>
+  <p id="status"></p>
+
+  <script>
+    document.getElementById('upload-btn').addEventListener('click', async () => {
+      const fileInput = document.getElementById('file-input');
+      const status = document.getElementById('status');
+
+      if (fileInput.files.length === 0) {
+        status.innerText = 'Please select a file to upload.';
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      status.innerText = 'Uploading and converting...';
+
+      try {
+        const response = await fetch('http://localhost:3000/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const link = document.createElement('a');
+          link.href = window.URL.createObjectURL(blob);
+          link.download = file.name + '.pdf';
+          link.click();
+
+          status.innerText = 'File converted and ready for download.';
+        } else {
+          status.innerText = 'Conversion failed. Please try again.';
+        }
+      } catch (error) {
+        status.innerText = 'Error occurred: ' + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
